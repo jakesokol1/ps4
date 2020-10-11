@@ -1,4 +1,5 @@
 import csv
+from csv import reader
 from math import log
 from collections import defaultdict, Counter
 
@@ -82,11 +83,32 @@ def partition_loss_by(inputs, attribute):
 *        number of levels based on labeled data "inputs"
 ************************************************************************"""
 def build_tree(inputs, num_levels, split_candidates = None):
-	#TODO
-
 	#if first pass, all keys are split candidates
 	if split_candidates == None:
-		split_candidates = inputs[0][0].keys()
+		split_candidates = list(inputs[0][0].keys())
+
+	if len(split_candidates) == 0 or num_levels == 0:
+		days_until_funded_sum = 0
+		for input_ in inputs:
+			days_until_funded_sum += input_[1]
+		return days_until_funded_sum / len(inputs)
+
+	minAttr = ""
+	minVal = float('inf')
+
+	for candidate in split_candidates:
+		curr = partition_loss_by(inputs, candidate)
+		if curr < minVal:
+			minVal = curr
+			minAttr = candidate
+	
+	partition = partition_by(inputs, minAttr)
+
+	split_candidates.remove(minAttr)
+	dicRet = {}
+	for k, v in partition.items():
+		dicRet[k] = build_tree(v, num_levels - 1, split_candidates)
+	return (minAttr, dicRet)
 
 
 """************************************************************************
@@ -102,8 +124,11 @@ def build_tree(inputs, num_levels, split_candidates = None):
 *		 dictionary "to_classify" to output a predicted value.
 ************************************************************************"""
 def classify(tree, to_classify):
-	#TODO
-	pass
+	attribute = tree[0]
+	node = tree[1][to_classify[attribute]]
+	if type(node) is tuple:
+		return classify(node, to_classify)
+	return node
 
 
 """************************************************************************
@@ -116,4 +141,26 @@ def classify(tree, to_classify):
 *		 of features and 'b' is the value of the days_until_funded variable
 ************************************************************************"""
 def load_data():
-	# TODO
+	with open('tables/loans_A_labeled.csv', 'r') as read_obj:
+		loans = []
+		# pass the file object to reader() to get the reader object
+		csv_reader = reader(read_obj)
+		# Iterate over each row in the csv using reader object
+		labels = None
+		for i, row in enumerate(csv_reader):
+			# row variable is a list that represents a row in csv
+			if i == 0:
+				labels = row
+			else:
+				features = {}
+				days_until_funded = -1
+				for j, el in enumerate(row):
+					if j == len(row) - 1:
+						days_until_funded = int(el)
+					else:
+						features[labels[j]] = el
+				loans.append((features, days_until_funded))
+
+		return loans
+# load_data()
+print(load_data())
