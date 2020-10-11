@@ -126,10 +126,11 @@ def build_tree(inputs, num_levels, model_num, split_candidates = None):
 	
 	partition = partition_by(inputs, minAttr)
 
-	split_candidates.remove(minAttr)
+	split_candidates_ = split_candidates.copy()
+	split_candidates_.remove(minAttr)
 	dicRet = {}
 	for k, v in partition.items():
-		dicRet[k] = build_tree(v, num_levels - 1, 0, split_candidates)
+		dicRet[k] = build_tree(v, num_levels - 1, 0, split_candidates_)
 	return (minAttr, dicRet)
 
 
