@@ -29,8 +29,25 @@ from collections import defaultdict, Counter
 *       given subsets
 ************************************************************************"""
 def partition_loss(subsets):
-	#TODO
-	pass
+	
+	mse = 0
+	net_count = 0
+
+	for subset in subsets:
+		net_count += len(subset)
+
+		avg = 0
+		for el in subset:
+			avg += el[1]
+
+		avg /= len(subset)
+
+		for el in subset:
+			mse += (el[1] - avg) * (el[1] - avg)
+
+	return mse / net_count
+
+
 
 
 """************************************************************************
