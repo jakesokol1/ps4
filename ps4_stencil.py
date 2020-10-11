@@ -13,6 +13,8 @@ from collections import defaultdict, Counter
 * the classification accuracy.
 """
 
+model1_attr = ["loan_amount_bin", "repayment_term_bin"]
+models = [model1_attr]
 
 """
 * TODO: Create features to be used in your regression tree.
@@ -99,10 +101,11 @@ def partition_loss_by(inputs, attribute):
 * TODO:  Write a recursive function that builds a tree of the specified
 *        number of levels based on labeled data "inputs"
 ************************************************************************"""
-def build_tree(inputs, num_levels, split_candidates = None):
+def build_tree(inputs, num_levels, model_num, split_candidates = None):
 	#if first pass, all keys are split candidates
 	if split_candidates == None:
-		split_candidates = list(inputs[0][0].keys())
+		# split_candidates = list(inputs[0][0].keys())
+		split_candidates = models[model_num]
 
 	if len(split_candidates) == 0 or num_levels == 0:
 		days_until_funded_sum = 0
@@ -124,7 +127,7 @@ def build_tree(inputs, num_levels, split_candidates = None):
 	split_candidates.remove(minAttr)
 	dicRet = {}
 	for k, v in partition.items():
-		dicRet[k] = build_tree(v, num_levels - 1, split_candidates)
+		dicRet[k] = build_tree(v, num_levels - 1, 0, split_candidates)
 	return (minAttr, dicRet)
 
 
@@ -179,5 +182,36 @@ def load_data():
 				loans.append((features, days_until_funded))
 
 		return loans
+
+def make_model1_data(loans):
+	# find mean loan_amount and mean repayment_amount
+	loan_amount_tot = 0
+	repayment_term_tot = 0
+	for loan in loans:
+		loan_amount_tot += int(loan[0]["loan_amount"])
+		repayment_term_tot += int(loan[0]["repayment_term"])
+
+	count = len(loans)
+	mean_loan_amount = loan_amount_tot / count
+	mean_repayment_term = repayment_term_tot / count
+
+	for loan in loans:
+		curr_loan_amount = int(loan[0]["loan_amount"])
+		curr_repayment_term = int(loan[0]["repayment_term"])
+		if curr_loan_amount <= mean_loan_amount:
+			loan[0]["loan_amount_bin"] = 0
+		else:
+			loan[0]["loan_amount_bin"] = 1
+
+
+		if curr_repayment_term <= mean_repayment_term:
+			loan[0]["repayment_term_bin"] = 0
+		else:
+			loan[0]["repayment_term_bin"] = 1
+
+	return loans
+
+
 # load_data()
-print(load_data())
+data = make_model1_data(load_data())
+print(build_tree(data, 2, 0))
