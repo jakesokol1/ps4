@@ -107,6 +107,8 @@ def build_tree(inputs, num_levels, model_num, split_candidates = None):
 		# split_candidates = list(inputs[0][0].keys())
 		split_candidates = models[model_num]
 
+	print("num levels: " + str(num_levels) + ", split_candidates: " + str(split_candidates))
+
 	if len(split_candidates) == 0 or num_levels == 0:
 		days_until_funded_sum = 0
 		for input_ in inputs:
