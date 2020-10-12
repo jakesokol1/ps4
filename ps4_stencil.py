@@ -15,8 +15,10 @@ from collections import defaultdict, Counter
 """
 
 model1_attr = ["loan_amount_bin", "repayment_term_bin"]
-dateTimeModel_attr = ["year_range", "holiday_month", "day_of_week", "waking_hours"]
-models = [model1_attr]
+dateTimeModel_attr = ["holiday_month", "day_of_week", "waking_hours"]
+model2_attr = ["age_bin", "gender", "pictured", "pop_name"]
+
+models = [model1_attr, model2_attr]
 
 """
 * TODO: Create features to be used in your regression tree.
@@ -108,8 +110,6 @@ def build_tree(inputs, num_levels, model_num, split_candidates = None):
 	if split_candidates == None:
 		# split_candidates = list(inputs[0][0].keys())
 		split_candidates = models[model_num]
-
-	print("num levels: " + str(num_levels) + ", split_candidates: " + str(split_candidates))
 
 	if len(split_candidates) == 0 or num_levels == 0:
 		days_until_funded_sum = 0
@@ -208,13 +208,13 @@ def make_model1_data(loans):
 		else:
 			loan[0]["loan_amount_bin"] = 1
 
-
 		if curr_repayment_term <= mean_repayment_term:
 			loan[0]["repayment_term_bin"] = 0
 		else:
 			loan[0]["repayment_term_bin"] = 1
 
 	return loans
+
 
 def make_dateTimeModel_data(loans):
 	for loan in loans:
@@ -225,24 +225,64 @@ def make_dateTimeModel_data(loans):
 		loan_data["day_of_week"] = dateTime.weekday()
 
 		month = dateTime.month
-		hour = dateTime.hour
 		if month == 12 or month == 1:
-			l
+			loan_data["holiday_month"] = 1
+		else:
+			loan_data["holiday_month"] = 0
 
-		
+		hour = dateTime.hour
+		if hour >= 9 and hour <= 17:
+			loan_data["waking_hours"] = 1
+		else:
+			loan_data["waking_hours"] = 0
+	return loans
+
+data = make_dateTimeModel_data(load_data())
+print(data)
+# load_data()
+print(build_tree(data, 2, 1))
 
 
-		
+# posted_date = "2014-03-23T20:50:04Z"
+# dateTime = datetime.datetime.strptime(posted_date, '%Y-%m-%dT%H:%M:%SZ')
+# print(dateTime.date())
+# print(dateTime.time())
+# print(dateTime)
 
-		
+def make_model2_data(loans):
+	for loan in loans:
+		age = findAge(loan[0]["description"])
+		if age < 0:
+			loan[0]["age_bin"] = "unknown"
+		elif age < 30:
+			loan[0]["age_bin"] = "young"
+		elif age < 50:
+			loan[0]["age_bin"] = "adult"
+		else:
+			loan[0]["age_bin"] = "old"
 
+	names = []
+	with open('baby-names.csv', 'r') as read_obj:
+		csv_reader = reader(read_obj)
+		for i, row in enumerate(csv_reader):
+			if i > 0 and int(row[0]) > 1980:
+				names.append(row[1])
+
+	for loan in loans:
+		if loan[0]["name"] in names:
+			loan[0]["pop_name"] = 1
+		else:
+			loan[0]["pop_name"] = 0
+
+	return loans
+
+def findAge(description):
+	for i in range(len(description) - 1):
+		st = description[i:i+2]
+		if st.isnumeric():
+			return int(description[i:i+2])
+	return -1
 
 # load_data()
-# data = make_model1_data(load_data())
-# print(build_tree(data, 2, 0))
-
-posted_date = "2014-03-23T20:50:04Z"
-dateTime = datetime.datetime.strptime(posted_date, '%Y-%m-%dT%H:%M:%SZ')
-print(dateTime.date())
-print(dateTime.time())
-print(dateTime)
+#data = make_model2_data(load_data())
+#print(build_tree(data, 2, 1))
