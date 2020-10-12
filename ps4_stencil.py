@@ -113,7 +113,7 @@ def build_tree(inputs, num_levels, model_num, split_candidates = None):
 	#if first pass, all keys are split candidates
 	if split_candidates == None:
 		# split_candidates = list(inputs[0][0].keys())
-		split_candidates = model_basic + models[model_num]
+		split_candidates = models[model_num]
 
 	if len(split_candidates) == 0 or num_levels == 0:
 		days_until_funded_sum = 0
@@ -154,6 +154,9 @@ def build_tree(inputs, num_levels, model_num, split_candidates = None):
 ************************************************************************"""
 def classify(tree, to_classify):
 	attribute = tree[0]
+	if to_classify[0][attribute] not in tree[1]:
+		print("BAD")
+		return 7
 	node = tree[1][to_classify[0][attribute]]
 	if type(node) is tuple:
 		return classify(node, to_classify)
