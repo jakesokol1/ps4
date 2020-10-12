@@ -15,10 +15,10 @@ from collections import defaultdict, Counter
 """
 
 model1_attr = ["loan_amount_bin", "repayment_term_bin"]
-dateTimeModel_attr = ["holiday_month", "day_of_week", "waking_hours"]
+dateTimeModel_attr = ["holiday_time", "day_of_week", "waking_hours"]
 model2_attr = ["age_bin", "gender", "pictured", "pop_name"]
 
-models = [model1_attr, model2_attr]
+models = [model1_attr, model2_attr, dateTimeModel_attr]
 
 """
 * TODO: Create features to be used in your regression tree.
@@ -202,7 +202,7 @@ def write_predictions(file_name, model, data):
 		writer = csv.DictWriter(csvfile, fieldnames=['ID', 'days_until_funded_JB_AL_JS'])
 		writer.writeheader()
 		for point in data:
-			prediction = classify(tree, point)
+			prediction = classify(model, point)
 			writer.writerow({'ID': point['id'], 'days_until_funded_JB_AL_JS': prediction})
 
 
@@ -244,10 +244,11 @@ def make_dateTimeModel_data(loans):
 		loan_data["day_of_week"] = dateTime.weekday()
 
 		month = dateTime.month
-		if month == 12 or month == 1:
-			loan_data["holiday_month"] = 1
+		day = dateTime.day
+		if (month == 12 and day > 15) or (month == 1 and day < 15):
+			loan_data["holiday_time"] = 1
 		else:
-			loan_data["holiday_month"] = 0
+			loan_data["holiday_time"] = 0
 
 		hour = dateTime.hour
 		if hour >= 9 and hour <= 17:
@@ -257,9 +258,9 @@ def make_dateTimeModel_data(loans):
 	return loans
 
 data = make_dateTimeModel_data(load_data())
-print(data)
+# print(data)
 # load_data()
-print(build_tree(data, 2, 1))
+print(build_tree(data, 2, 2))
 
 
 # posted_date = "2014-03-23T20:50:04Z"
