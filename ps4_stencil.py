@@ -20,11 +20,7 @@ countryModel_attr = ["country_region", "country_sub_region", "gdp_small_bin"]
 model2_attr = ["age_bin", "gender", "pictured", "pop_name"]
 model3_attr = ["long", "fam", "smart", "sympathy"]
 
-<<<<<<< HEAD
-models = [model1_attr, model2_attr, dateTimeModel_attr, countryModel_attr]
-=======
-models = [model1_attr, model2_attr, dateTimeModel_attr, model3_attr]
->>>>>>> 1e080f8ee345bffd4260189463785ece7a128863
+models = [model1_attr, model2_attr, dateTimeModel_attr, model3_attr, countryModel_attr]
 
 """
 * TODO: Create features to be used in your regression tree.
@@ -302,8 +298,6 @@ def make_dateTimeModel_data(loans):
 			loan_data["waking_hours"] = 0
 	return loans
 
-<<<<<<< HEAD
-
 def make_gdp_data(loans):
 	small_gdp = []
 	with open('tables/smaller_gdp.csv', 'r') as read_obj:
@@ -336,13 +330,7 @@ def make_gdp_data(loans):
 
 	return loans
 
-data = make_gdp_data(load_data())
-print(build_tree(data, 2, 3))
 
-
-
-=======
->>>>>>> 1e080f8ee345bffd4260189463785ece7a128863
 def make_model2_data(loans):
 	for loan in loans:
 		age = findAge(loan[0]["description"])
@@ -392,4 +380,6 @@ for i in range(len(models)):
 		data = make_dateTimeModel_data(load_data())
 	elif i == 3:
 		data = make_model3_data(load_data())
+	elif i == 4:
+		data = make_gdp_data(load_data())
 	print(test_model(build_tree(data, len(models[i]), i), data))
