@@ -17,8 +17,9 @@ from collections import defaultdict, Counter
 model1_attr = ["loan_amount_bin", "repayment_term_bin"]
 dateTimeModel_attr = ["holiday_time", "day_of_week", "waking_hours"]
 model2_attr = ["age_bin", "gender", "pictured", "pop_name"]
+model3_attr = ["long", "fam", "smart", "sympathy"]
 
-models = [model1_attr, model2_attr, dateTimeModel_attr]
+models = [model1_attr, model2_attr, dateTimeModel_attr, model3_attr]
 
 """
 * TODO: Create features to be used in your regression tree.
@@ -234,6 +235,45 @@ def make_model1_data(loans):
 
 	return loans
 
+def make_model3_data(loans):
+	for loan in loans:
+		fam_score = 0
+		fam_words = ["children", "child", "married", "kids", "family"]
+		smart_score = 0
+		smart_words = ["entrepreneur", "entrepreneurship", "business"]
+		sympathy_score = 0
+		sympathy_words = ["rural", "necessary", "community", "single", "dependent"]
+		description = loan[0]["description"]
+		des_len = len(description)
+
+		if des_len > 1000:
+			loan[0]["long"] = 2
+		elif des_len < 400:
+			loan[0]["long"] = 0
+		else:
+			loan[0]["long"] = 1
+
+		for f_word in fam_words:
+			fam_score += description.count(f_word)
+		if fam_score > 0:
+			loan[0]["fam"] = 1
+		else:
+			loan[0]["fam"] = 0
+
+		for sm_words in smart_words:
+			smart_score += description.count(sm_words)
+		if smart_score > 0:
+			loan[0]["smart"] = 1
+		else:
+			loan[0]["smart"] = 0
+
+		for sy_word in sympathy_words:
+			sympathy_score += description.count(sy_word)
+		if sympathy_score > 0:
+			loan[0]["sympathy"] = 1
+		else:
+			loan[0]["sympathy"] = 0
+	return loans
 
 def make_dateTimeModel_data(loans):
 	for loan in loans:
@@ -256,18 +296,6 @@ def make_dateTimeModel_data(loans):
 		else:
 			loan_data["waking_hours"] = 0
 	return loans
-
-data = make_dateTimeModel_data(load_data())
-# print(data)
-# load_data()
-print(build_tree(data, 2, 2))
-
-
-# posted_date = "2014-03-23T20:50:04Z"
-# dateTime = datetime.datetime.strptime(posted_date, '%Y-%m-%dT%H:%M:%SZ')
-# print(dateTime.date())
-# print(dateTime.time())
-# print(dateTime)
 
 def make_model2_data(loans):
 	for loan in loans:
@@ -304,5 +332,5 @@ def findAge(description):
 	return -1
 
 # load_data()
-#data = make_model2_data(load_data())
-#print(build_tree(data, 2, 1))
+# data = make_model3_data(load_data())
+# print(build_tree(data, 4, 3))
