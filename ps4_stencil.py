@@ -2,6 +2,7 @@ import csv
 import datetime
 from csv import reader
 from math import log
+from fractions import Fraction
 from collections import defaultdict, Counter
 
 """
@@ -19,6 +20,7 @@ dateTimeModel_attr = ["holiday_time", "day_of_week", "waking_hours"]
 countryModel_attr = ["country_region", "country_sub_region", "gdp_small_bin"]
 model2_attr = ["age_bin", "gender", "pictured", "pop_name"]
 model3_attr = ["long", "fam", "smart", "sympathy"]
+model_basic = ["gender", "pictured", "sector", "country", "languages"]
 
 models = [model1_attr, model2_attr, dateTimeModel_attr, model3_attr, countryModel_attr]
 
@@ -111,7 +113,7 @@ def build_tree(inputs, num_levels, model_num, split_candidates = None):
 	#if first pass, all keys are split candidates
 	if split_candidates == None:
 		# split_candidates = list(inputs[0][0].keys())
-		split_candidates = models[model_num]
+		split_candidates = model_basic + models[model_num]
 
 	if len(split_candidates) == 0 or num_levels == 0:
 		days_until_funded_sum = 0
@@ -152,7 +154,7 @@ def build_tree(inputs, num_levels, model_num, split_candidates = None):
 ************************************************************************"""
 def classify(tree, to_classify):
 	attribute = tree[0]
-	node = tree[1][to_classify[attribute]]
+	node = tree[1][to_classify[0][attribute]]
 	if type(node) is tuple:
 		return classify(node, to_classify)
 	return node
@@ -167,8 +169,8 @@ def classify(tree, to_classify):
 * 		 observations as a list of tuples (a, b), where 'a' is a dictionary
 *		 of features and 'b' is the value of the days_until_funded variable
 ************************************************************************"""
-def load_data():
-	with open('tables/loans_A_labeled.csv', 'r') as read_obj:
+def load_data(filename):
+	with open(filename, 'r') as read_obj:
 		loans = []
 		# pass the file object to reader() to get the reader object
 		csv_reader = reader(read_obj)
@@ -182,7 +184,7 @@ def load_data():
 				features = {}
 				days_until_funded = -1
 				for j, el in enumerate(row):
-					if j == len(row) - 1:
+					if filename != "tables/loans_B_unlabeled.csv" and j == len(row) - 1:
 						days_until_funded = int(el)
 					else:
 						features[labels[j]] = el
@@ -199,13 +201,13 @@ def test_model(model, data):
 	return mse / len(data)
 
 
-def write_predictions(file_name, model, data):
-	with open(file_name, 'w', newline='') as csvfile:
+def write_predictions(model, data):
+	with open("loans_B_predicted_JB_AL_JS", 'w', newline='') as csvfile:
 		writer = csv.DictWriter(csvfile, fieldnames=['ID', 'days_until_funded_JB_AL_JS'])
 		writer.writeheader()
 		for point in data:
 			prediction = classify(model, point)
-			writer.writerow({'ID': point['id'], 'days_until_funded_JB_AL_JS': prediction})
+			writer.writerow({'ID': point[0]['id'], 'days_until_funded_JB_AL_JS': prediction})
 
 
 
@@ -363,23 +365,30 @@ def findAge(description):
 	for i in range(len(description) - 1):
 		st = description[i:i+2]
 		if st.isnumeric():
-			return int(description[i:i+2])
+			try:
+				ints = int(description[i:i+2])
+				return ints
+			except:
+				return -1
 	return -1
 
-# load_data()
-# data = make_model3_data(load_data())
-# print(build_tree(data, 4, 3))
+# for i in range(len(models)):
+# 	data = ""
+# 	if i == 0:
+# 		data = make_model1_data(load_data())
+# 	elif i == 1:
+# 		data = make_model2_data(load_data())
+# 	elif i == 2:
+# 		data = make_dateTimeModel_data(load_data())
+# 	elif i == 3:
+# 		data = make_model3_data(load_data())
+# 	elif i == 4:
+# 		data = make_gdp_data(load_data())
+# 	print(test_model(build_tree(data, len(models[i] + model_basic), i), data))
 
-for i in range(len(models)):
-	data = ""
-	if i == 0:
-		data = make_model1_data(load_data())
-	elif i == 1:
-		data = make_model2_data(load_data())
-	elif i == 2:
-		data = make_dateTimeModel_data(load_data())
-	elif i == 3:
-		data = make_model3_data(load_data())
-	elif i == 4:
-		data = make_gdp_data(load_data())
-	print(test_model(build_tree(data, len(models[i]), i), data))
+
+data = make_model2_data(load_data("tables/loans_A_labeled.csv"))
+model = build_tree(data, len(model2_attr), 1)
+
+data_new = make_model2_data(load_data("tables/loans_B_unlabeled.csv"))
+write_predictions(model, data_new)
