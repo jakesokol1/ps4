@@ -188,6 +188,25 @@ def load_data():
 
 		return loans
 
+
+def test_model(model, data):
+	mse = 0
+	for point in data:
+		prediction = classify(model, point[0])
+		mse += (point[1] - prediction) * (point[1] - prediction)
+	return mse / len(data)
+
+
+def write_predictions(file_name, model, data):
+	with open(file_name, 'w', newline='') as csvfile:
+		writer = csv.DictWriter(csvfile, fieldnames=['ID', 'days_until_funded_JB_AL_JS'])
+		writer.writeheader()
+		for point in data:
+			prediction = classify(tree, point)
+			writer.writerow({'ID': point['id'], 'days_until_funded_JB_AL_JS': prediction})
+
+
+
 def make_model1_data(loans):
 	# find mean loan_amount and mean repayment_amount
 	loan_amount_tot = 0
