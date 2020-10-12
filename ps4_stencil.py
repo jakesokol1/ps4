@@ -1,4 +1,5 @@
 import csv
+import datetime
 from csv import reader
 from math import log
 from collections import defaultdict, Counter
@@ -14,6 +15,7 @@ from collections import defaultdict, Counter
 """
 
 model1_attr = ["loan_amount_bin", "repayment_term_bin"]
+dateTimeModel_attr = ["year_range", "holiday_month", "day_of_week", "waking_hours"]
 models = [model1_attr]
 
 """
@@ -214,7 +216,33 @@ def make_model1_data(loans):
 
 	return loans
 
+def make_dateTimeModel_data(loans):
+	for loan in loans:
+		loan_data = loan[0]
+		posted_date = loan_data["posted_date"]
+		dateTime = datetime.datetime.strptime(posted_date, '%Y-%m-%dT%H:%M:%SZ')
+
+		loan_data["day_of_week"] = dateTime.weekday()
+
+		month = dateTime.month
+		hour = dateTime.hour
+		if month == 12 or month == 1:
+			l
+
+		
+
+
+		
+
+		
+
 
 # load_data()
-data = make_model1_data(load_data())
-print(build_tree(data, 2, 0))
+# data = make_model1_data(load_data())
+# print(build_tree(data, 2, 0))
+
+posted_date = "2014-03-23T20:50:04Z"
+dateTime = datetime.datetime.strptime(posted_date, '%Y-%m-%dT%H:%M:%SZ')
+print(dateTime.date())
+print(dateTime.time())
+print(dateTime)
