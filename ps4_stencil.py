@@ -334,3 +334,15 @@ def findAge(description):
 # load_data()
 # data = make_model3_data(load_data())
 # print(build_tree(data, 4, 3))
+
+for i in range(len(models)):
+	data = ""
+	if i == 0:
+		data = make_model1_data(load_data())
+	elif i == 1:
+		data = make_model2_data(load_data())
+	elif i == 2:
+		data = make_dateTimeModel_data(load_data())
+	elif i == 3:
+		data = make_model3_data(load_data())
+	print(test_model(build_tree(data, len(models[i]), i), data))
