@@ -16,9 +16,10 @@ from collections import defaultdict, Counter
 
 model1_attr = ["loan_amount_bin", "repayment_term_bin"]
 dateTimeModel_attr = ["holiday_time", "day_of_week", "waking_hours"]
+countryModel_attr = ["country_region", "country_sub_region", "gdp_small_bin"]
 model2_attr = ["age_bin", "gender", "pictured", "pop_name"]
 
-models = [model1_attr, model2_attr, dateTimeModel_attr]
+models = [model1_attr, model2_attr, dateTimeModel_attr, countryModel_attr]
 
 """
 * TODO: Create features to be used in your regression tree.
@@ -257,17 +258,43 @@ def make_dateTimeModel_data(loans):
 			loan_data["waking_hours"] = 0
 	return loans
 
-data = make_dateTimeModel_data(load_data())
-# print(data)
-# load_data()
-print(build_tree(data, 2, 2))
+
+def make_gdp_data(loans):
+	small_gdp = []
+	with open('tables/smaller_gdp.csv', 'r') as read_obj:
+		csv_reader = reader(read_obj)
+		for i, row in enumerate(csv_reader):
+			if i > 0:
+				small_gdp.append(row[0])
+
+	country_regions = {}
+	country_sub_regions = {}
+	with open('tables/country_regions.csv', 'r') as read_obj:
+		csv_reader = reader(read_obj)
+		for i, row in enumerate(csv_reader):
+			if i > 0:
+				country_regions[row[0]] = row[5]
+				country_sub_regions[row[0]] = row[6]
 
 
-# posted_date = "2014-03-23T20:50:04Z"
-# dateTime = datetime.datetime.strptime(posted_date, '%Y-%m-%dT%H:%M:%SZ')
-# print(dateTime.date())
-# print(dateTime.time())
-# print(dateTime)
+	for loan in loans:
+		loan_data = loan[0]
+		country  = loan_data["country"]
+		loan_data["country_region"] = country_regions[country]
+		loan_data["country_sub_region"] = country_sub_regions[country]
+
+		if country in small_gdp:
+			loan_data["gdp_small_bin"] = 0
+		else:
+			loan_data["gdp_small_bin"] = 1
+
+
+	return loans
+
+data = make_gdp_data(load_data())
+print(build_tree(data, 2, 3))
+
+
 
 def make_model2_data(loans):
 	for loan in loans:
@@ -295,6 +322,7 @@ def make_model2_data(loans):
 			loan[0]["pop_name"] = 0
 
 	return loans
+
 
 def findAge(description):
 	for i in range(len(description) - 1):
