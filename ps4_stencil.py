@@ -6,6 +6,8 @@ from math import log
 from fractions import Fraction
 from collections import defaultdict, Counter
 from random import choices
+from random import seed
+from random import random
 
 """
 * ECON1660
@@ -16,6 +18,8 @@ from random import choices
 * function and the call to main to print out the tree and
 * the classification accuracy.
 """
+
+TRAIN_SPLIT_VAL = 0.8
 
 model1_attr = ["loan_amount_bin", "repayment_term_bin"]
 dateTimeModel_attr = ["holiday_time", "day_of_week", "waking_hours"]
@@ -114,8 +118,8 @@ def partition_loss_by(inputs, attribute):
 def build_tree(inputs, num_levels, model_num, split_candidates = None):
 	#if first pass, all keys are split candidates
 	if split_candidates == None:
-		# split_candidates = list(inputs[0][0].keys())
-		split_candidates = models[model_num]
+		# split_candidates = models[model_num]
+		split_candidates = models[model_num] + model_basic
 
 	if len(split_candidates) == 0 or num_levels == 0:
 		days_until_funded_sum = 0
@@ -238,6 +242,22 @@ def load_data(filename):
 				loans.append((features, days_until_funded))
 
 		return loans
+
+
+def splitData(data):
+	seed()
+	test = []
+	train = []
+	for point in data:
+		if random() > TRAIN_SPLIT_VAL:
+			test.append(point)
+		else:
+			train.append(point)
+
+	return test, train
+
+
+test, train = splitData(load_data("tables/loans_AB_labeled.csv"))
 
 
 def test_model(model, data):
