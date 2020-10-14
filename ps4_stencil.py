@@ -202,10 +202,10 @@ def forest_predict(trees, to_classify):
 ************************************************************************"""
 def classify(tree, to_classify):
 	attribute = tree[0]
-	if to_classify[0][attribute] not in tree[1]:
+	if to_classify[attribute] not in tree[1]:
 		print("BAD")
 		return 7
-	node = tree[1][to_classify[0][attribute]]
+	node = tree[1][to_classify[attribute]]
 	if type(node) is tuple:
 		return classify(node, to_classify)
 	return node
@@ -457,14 +457,6 @@ def test_train_split(model_num):
 
 
 test_train_split(2)
-
-
-#data = make_model2_data(load_data("tables/loans_A_labeled.csv"))
-#model = build_tree(data, len(model2_attr), 1)
-
-#data_new = make_model2_data(load_data("tables/loans_B_unlabeled.csv"))
-#write_predictions(model, data_new)
-
 
 def bootstrap(input_loans, n):
 	return choices(input_loans, k = n)
