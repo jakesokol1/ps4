@@ -4,6 +4,7 @@ from csv import reader
 from math import log
 from fractions import Fraction
 from collections import defaultdict, Counter
+from random import choices
 
 """
 * ECON1660
@@ -390,8 +391,12 @@ def findAge(description):
 # 	print(test_model(build_tree(data, len(models[i] + model_basic), i), data))
 
 
-data = make_model2_data(load_data("tables/loans_A_labeled.csv"))
-model = build_tree(data, len(model2_attr), 1)
+#data = make_model2_data(load_data("tables/loans_A_labeled.csv"))
+#model = build_tree(data, len(model2_attr), 1)
 
-data_new = make_model2_data(load_data("tables/loans_B_unlabeled.csv"))
-write_predictions(model, data_new)
+#data_new = make_model2_data(load_data("tables/loans_B_unlabeled.csv"))
+#write_predictions(model, data_new)
+
+
+def bootstrap(input_loans, n):
+	return choices(input_loans, k = n)
