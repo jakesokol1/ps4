@@ -5,6 +5,7 @@ from csv import reader
 from math import log
 from fractions import Fraction
 from collections import defaultdict, Counter
+from random import choices
 
 """
 * ECON1660
@@ -114,7 +115,7 @@ def build_tree(inputs, num_levels, model_num, split_candidates = None):
 	#if first pass, all keys are split candidates
 	if split_candidates == None:
 		# split_candidates = list(inputs[0][0].keys())
-		split_candidates = model_basic + models[model_num]
+		split_candidates = models[model_num]
 
 	if len(split_candidates) == 0 or num_levels == 0:
 		days_until_funded_sum = 0
@@ -197,6 +198,9 @@ def forest_predict(trees, to_classify):
 ************************************************************************"""
 def classify(tree, to_classify):
 	attribute = tree[0]
+	if to_classify[0][attribute] not in tree[1]:
+		print("BAD")
+		return 7
 	node = tree[1][to_classify[0][attribute]]
 	if type(node) is tuple:
 		return classify(node, to_classify)
@@ -430,8 +434,12 @@ def findAge(description):
 # 	print(test_model(build_tree(data, len(models[i] + model_basic), i), data))
 
 
-data = make_model2_data(load_data("tables/loans_A_labeled.csv"))
-model = build_tree(data, len(model2_attr), 1)
+#data = make_model2_data(load_data("tables/loans_A_labeled.csv"))
+#model = build_tree(data, len(model2_attr), 1)
 
-data_new = make_model2_data(load_data("tables/loans_B_unlabeled.csv"))
-write_predictions(model, data_new)
+#data_new = make_model2_data(load_data("tables/loans_B_unlabeled.csv"))
+#write_predictions(model, data_new)
+
+
+def bootstrap(input_loans, n):
+	return choices(input_loans, k = n)
