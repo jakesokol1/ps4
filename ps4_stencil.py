@@ -1,5 +1,6 @@
 import csv
 import datetime
+import random
 from csv import reader
 from math import log
 from fractions import Fraction
@@ -140,6 +141,48 @@ def build_tree(inputs, num_levels, model_num, split_candidates = None):
 	return (minAttr, dicRet)
 
 
+def build_forest_tree(inputs, num_levels, model_num, num_split_candidates, split_candidates=None):
+	#if first pass, all keys are split candidates
+	if split_candidates == None:
+		# split_candidates = list(inputs[0][0].keys())
+		split_candidates = model_basic + models[model_num]
+
+	if len(split_candidates) == 0 or num_levels == 0:
+		days_until_funded_sum = 0
+		for input_ in inputs:
+			days_until_funded_sum += input_[1]
+		return days_until_funded_sum / len(inputs)
+
+	minAttr = ""
+	minVal = float('inf')
+
+	sampled_split_candidates = None
+	if len(split_candidates) <= num_split_candidates:
+		sampled_split_candidates = split_candidates
+	else:
+		sampled_split_candidates = random.sample(split_candidates, num_split_candidates)
+
+	for candidate in sampled_split_candidates:
+		curr = partition_loss_by(inputs, candidate)
+		if curr < minVal:
+			minVal = curr
+			minAttr = candidate
+	
+	partition = partition_by(inputs, minAttr)
+
+	split_candidates_ = split_candidates.copy()
+	split_candidates_.remove(minAttr)
+	dicRet = {}
+	for k, v in partition.items():
+		dicRet[k] = build_tree(v, num_levels - 1, 0, split_candidates_)
+	return (minAttr, dicRet)
+
+
+def forest_predict(trees, to_classify):
+	predictions = []
+	for tree in trees:
+		predictions.append(classify(tree, to_classify))
+	return sum(predictions) / len(predictions)
 """************************************************************************
 * function:  classify(tree, to_classify)
 *
