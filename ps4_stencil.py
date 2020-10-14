@@ -214,13 +214,10 @@ def splitData(data):
 	return test, train
 
 
-test, train = splitData(load_data("tables/loans_AB_labeled.csv"))
-
-
-def test_model(model, data):
+def test_model(tree, data):
 	mse = 0
 	for point in data:
-		prediction = classify(model, point[0])
+		prediction = classify(tree, point[0])
 		mse += (point[1] - prediction) * (point[1] - prediction)
 	return mse / len(data)
 
@@ -396,19 +393,27 @@ def findAge(description):
 				return -1
 	return -1
 
-# for i in range(len(models)):
-# 	data = ""
-# 	if i == 0:
-# 		data = make_model1_data(load_data())
-# 	elif i == 1:
-# 		data = make_model2_data(load_data())
-# 	elif i == 2:
-# 		data = make_dateTimeModel_data(load_data())
-# 	elif i == 3:
-# 		data = make_model3_data(load_data())
-# 	elif i == 4:
-# 		data = make_gdp_data(load_data())
-# 	print(test_model(build_tree(data, len(models[i] + model_basic), i), data))
+
+def make_model_data(data, model_num):
+	if model_num == 0:
+		return make_model1_data(data)
+	elif model_num == 1:
+		return make_model2_data(data)
+	elif model_num == 2:
+		return make_dateTimeModel_data(data)
+	elif model_num == 3:
+		return make_model3_data(data)
+	elif model_num == 4:
+		return make_gdp_data(data)
+
+
+def test_train_split(model_num):
+	test, train = splitData(make_model_data(load_data("tables/loans_AB_labeled.csv"), model_num))
+	tree = build_tree(train, len(models[model_num]), model_num)
+	print(test_model(tree, test))
+
+
+test_train_split(2)
 
 
 #data = make_model2_data(load_data("tables/loans_A_labeled.csv"))
