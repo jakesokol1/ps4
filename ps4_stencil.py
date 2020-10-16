@@ -469,11 +469,15 @@ def test_train_split(model_num):
 	print(test_model(tree, test))
 
 def test_train_split_forest(num_trees, num_levels, num_split_candidates, n):
+	print("Starting")
 	test, train = splitData(make_all_model_data(load_data("tables/loans_AB_labeled.csv")))
+	print("Done splitting")
 	forest = []
-	for _ in range(num_trees):
-		train_sample = bootstrap(train, n)
+	for i in range(num_trees):
+		print("Tree " + str(i))
+		train_sample = bootstrap(train, int(len(train) * n))
 		forest.append(build_forest_tree(train_sample, num_levels, num_split_candidates))
+	print("Testing")
 	print(test_forest(forest, test))
 
-test_train_split_forest(1, 1, 1, 1)
+test_train_split_forest(50, 10, 5, .5)
