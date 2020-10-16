@@ -265,6 +265,14 @@ def test_model(tree, data):
 	return mse / len(data)
 
 
+def test_forest(forest, data):
+	mse = 0
+	for point in data:
+		prediction = forest_predict(forest, point)
+		mse += (point[1] - prediction) * (point[1] - prediction)
+	return mse / len(data)
+
+
 def write_predictions(model, data):
 	with open("loans_B_predicted_JB_AL_JS", 'w', newline='') as csvfile:
 		writer = csv.DictWriter(csvfile, fieldnames=['ID', 'days_until_funded_JB_AL_JS'])
@@ -458,6 +466,14 @@ def test_train_split(model_num):
 	test, train = splitData(make_model_data(load_data("tables/loans_AB_labeled.csv"), model_num))
 	tree = build_tree(train, len(models[model_num]), model_num)
 	print(test_model(tree, test))
+
+def test_forest(model_num, num_trees, num_levels, num_split_candidates, n):
+	test, train = splitData(make_model_data(load_data("tables/loans_AB_labeled.csv"), model_num))
+	forest = []
+	for i in range(num_trees):
+		train_sample = bootstrap(train, n)
+		forest.append(build_forest_tree(train_sample, num_levels, model_num, num_split_candidates))
+	print(test_forest(forest, test))
 
 
 test_train_split(2)
