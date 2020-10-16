@@ -29,6 +29,8 @@ model3_attr = ["long", "fam", "smart", "sympathy"]
 model_basic = ["gender", "pictured", "sector", "country", "languages"]
 
 models = [model1_attr, model2_attr, dateTimeModel_attr, model3_attr, countryModel_attr]
+forest_base_model = model1_attr + model2_attr + model3_attr + dateTimeModel_attr + countryModel_attr + model_basic
+
 
 """
 * TODO: Create features to be used in your regression tree.
@@ -146,11 +148,10 @@ def build_tree(inputs, num_levels, model_num, split_candidates = None):
 	return (minAttr, dicRet)
 
 
-def build_forest_tree(inputs, num_levels, model_num, num_split_candidates, split_candidates=None):
+def build_forest_tree(inputs, num_levels, num_split_candidates, split_candidates=None):
 	#if first pass, all keys are split candidates
 	if split_candidates == None:
-		# split_candidates = list(inputs[0][0].keys())
-		split_candidates = model_basic + models[model_num]
+		split_candidates = forest_base_model
 
 	if len(split_candidates) == 0 or num_levels == 0:
 		days_until_funded_sum = 0
@@ -261,6 +262,14 @@ def test_model(tree, data):
 	mse = 0
 	for point in data:
 		prediction = classify(tree, point[0])
+		mse += (point[1] - prediction) * (point[1] - prediction)
+	return mse / len(data)
+
+
+def test_forest(forest, data):
+	mse = 0
+	for point in data:
+		prediction = forest_predict(forest, point)
 		mse += (point[1] - prediction) * (point[1] - prediction)
 	return mse / len(data)
 
@@ -409,12 +418,12 @@ def make_model2_data(loans):
 		else:
 			loan[0]["age_bin"] = "old"
 
-	names = []
+	names = set()
 	with open('baby-names.csv', 'r') as read_obj:
 		csv_reader = reader(read_obj)
 		for i, row in enumerate(csv_reader):
 			if i > 0 and int(row[0]) > 1980:
-				names.append(row[1])
+				names.add(row[1])
 
 	for loan in loans:
 		if loan[0]["name"] in names:
@@ -449,14 +458,31 @@ def make_model_data(data, model_num):
 	elif model_num == 4:
 		return make_gdp_data(data)
 
+def make_all_model_data(data):
+	for i in range(len(models)):
+		data = make_model_data(data, i)
+	return data
+
+def bootstrap(input_loans, n):
+	return choices(input_loans, k = n)
 
 def test_train_split(model_num):
 	test, train = splitData(make_model_data(load_data("tables/loans_AB_labeled.csv"), model_num))
-	tree = build_tree(train, len(models[model_num]), model_num)
+	tree = build_tree(train, len(models[model_num]) + len(model_basic), model_num)
 	print(test_model(tree, test))
 
 
 print(test_train_split(1))
 
+
 def bootstrap(input_loans, n):
 	return choices(input_loans, k = n)
+
+
+def test_train_split_forest(model_num, num_trees, num_levels, num_split_candidates, n):
+	test, train = splitData(make_all_model_data(load_data("tables/loans_AB_labeled.csv")))
+	forest = []
+	for _ in range(num_trees):
+		train_sample = bootstrap(train, n)
+		forest.append(build_forest_tree(train_sample, num_levels, num_split_candidates))
+	print(test_forest(forest, test))
