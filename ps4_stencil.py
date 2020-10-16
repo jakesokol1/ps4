@@ -418,12 +418,12 @@ def make_model2_data(loans):
 		else:
 			loan[0]["age_bin"] = "old"
 
-	names = []
+	names = set()
 	with open('baby-names.csv', 'r') as read_obj:
 		csv_reader = reader(read_obj)
 		for i, row in enumerate(csv_reader):
 			if i > 0 and int(row[0]) > 1980:
-				names.append(row[1])
+				names.add(row[1])
 
 	for loan in loans:
 		if loan[0]["name"] in names:
