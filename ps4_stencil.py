@@ -449,6 +449,10 @@ def make_model_data(data, model_num):
 	elif model_num == 4:
 		return make_gdp_data(data)
 
+def make_all_model_data(data):
+	for i in range(len(models)):
+		data = make_model_data(data, i)
+	return data
 
 def test_train_split(model_num):
 	test, train = splitData(make_model_data(load_data("tables/loans_AB_labeled.csv"), model_num))
@@ -460,3 +464,6 @@ test_train_split(2)
 
 def bootstrap(input_loans, n):
 	return choices(input_loans, k = n)
+
+forest_base_model = model1_attr + model2_attr + model3_attr + dateTimeModel_attr + countryModel_attr + model_basic
+forest_data = make_all_model_data(load_data("tables/loans_AB_labeled.csv"))
