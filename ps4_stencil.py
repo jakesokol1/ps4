@@ -1,13 +1,10 @@
 import csv
 import datetime
-import random
 from csv import reader
 from math import log
 from fractions import Fraction
 from collections import defaultdict, Counter
-from random import choices
-from random import seed
-from random import random
+from random import choices, seed, random, sample
 
 """
 * ECON1660
@@ -166,7 +163,7 @@ def build_forest_tree(inputs, num_levels, num_split_candidates, split_candidates
 	if len(split_candidates) <= num_split_candidates:
 		sampled_split_candidates = split_candidates
 	else:
-		sampled_split_candidates = random.sample(split_candidates, num_split_candidates)
+		sampled_split_candidates = sample(split_candidates, num_split_candidates)
 
 	for candidate in sampled_split_candidates:
 		curr = partition_loss_by(inputs, candidate)
@@ -269,7 +266,7 @@ def test_model(tree, data):
 def test_forest(forest, data):
 	mse = 0
 	for point in data:
-		prediction = forest_predict(forest, point)
+		prediction = forest_predict(forest, point[0])
 		mse += (point[1] - prediction) * (point[1] - prediction)
 	return mse / len(data)
 
@@ -374,12 +371,12 @@ def make_dateTimeModel_data(loans):
 	return loans
 
 def make_gdp_data(loans):
-	small_gdp = []
+	small_gdp = set()
 	with open('tables/smaller_gdp.csv', 'r') as read_obj:
 		csv_reader = reader(read_obj)
 		for i, row in enumerate(csv_reader):
 			if i > 0:
-				small_gdp.append(row[0])
+				small_gdp.add(row[0])
 
 	country_regions = {}
 	country_sub_regions = {}
@@ -478,3 +475,5 @@ def test_train_split_forest(num_trees, num_levels, num_split_candidates, n):
 		train_sample = bootstrap(train, n)
 		forest.append(build_forest_tree(train_sample, num_levels, num_split_candidates))
 	print(test_forest(forest, test))
+
+test_train_split_forest(1, 1, 1, 1)
