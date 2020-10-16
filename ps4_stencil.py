@@ -456,7 +456,7 @@ def test_train_split(model_num):
 	print(test_model(tree, test))
 
 
-test_train_split(2)
+print(test_train_split(1))
 
 def bootstrap(input_loans, n):
 	return choices(input_loans, k = n)
