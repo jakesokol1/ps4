@@ -28,8 +28,8 @@ model2_attr = ["age_bin", "gender", "pictured", "pop_name"]
 model3_attr = ["long", "fam", "smart", "sympathy"]
 model_basic = ["gender", "pictured", "sector", "country", "languages"]
 
-models = [model1_attr, model2_attr, dateTimeModel_attr, model3_attr, countryModel_attr]
-forest_base_model = model1_attr + model2_attr + model3_attr + dateTimeModel_attr + countryModel_attr + model_basic
+models = [model1_attr, model2_attr, dateTimeModel_attr, model3_attr]
+forest_base_model = model1_attr + model2_attr + model3_attr + dateTimeModel_attr + model_basic
 
 
 """
@@ -471,7 +471,7 @@ def test_train_split(model_num):
 	tree = build_tree(train, len(models[model_num]) + len(model_basic), model_num)
 	print(test_model(tree, test))
 
-def test_train_split_forest(model_num, num_trees, num_levels, num_split_candidates, n):
+def test_train_split_forest(num_trees, num_levels, num_split_candidates, n):
 	test, train = splitData(make_all_model_data(load_data("tables/loans_AB_labeled.csv")))
 	forest = []
 	for _ in range(num_trees):
