@@ -26,7 +26,7 @@ model3_attr = ["long", "fam", "smart", "sympathy"]
 model_basic = ["gender", "pictured", "sector", "country", "languages"]
 
 models = [model1_attr, model2_attr, dateTimeModel_attr, model3_attr]
-forest_base_model = model1_attr + model2_attr + model3_attr + dateTimeModel_attr + model_basic
+forest_base_model = model1_attr + model_basic
 
 
 """
@@ -470,7 +470,7 @@ def test_train_split(model_num):
 
 def test_train_split_forest(num_trees, num_levels, num_split_candidates, n):
 	print("Starting")
-	test, train = splitData(make_all_model_data(load_data("tables/loans_AB_labeled.csv")))
+	test, train = splitData(make_model1_data(load_data("tables/loans_AB_labeled.csv")))
 	print("Done splitting")
 	forest = []
 	for i in range(num_trees):
@@ -480,4 +480,4 @@ def test_train_split_forest(num_trees, num_levels, num_split_candidates, n):
 	print("Testing")
 	print(test_forest(forest, test))
 
-test_train_split_forest(50, 10, 5, .5)
+test_train_split_forest(2, 2, 2, .5)
